@@ -140,14 +140,25 @@ export default function App() {
       { name: 'Masala Chai', category: 'Beverages', price: 15, description: 'Freshly brewed spiced tea', is_available: true, image_url: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=600&auto=format&fit=crop' },
       { name: 'Cold Coffee', category: 'Beverages', price: 60, description: 'Chilled coffee with ice', is_available: true, image_url: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=600&auto=format&fit=crop' },
 
-      // Cold Drinks
+      // Cold Drinks 250ml variants
       { name: 'Coca-Cola 250ml', category: 'Cold Drinks', price: 35, description: 'Chilled Coke 250ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Sprite 250ml', category: 'Cold Drinks', price: 35, description: 'Lemon-lime soda 250ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Fanta 250ml', category: 'Cold Drinks', price: 35, description: 'Orange soda 250ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1600289031468-904c0b8ee1f0?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Thums Up 250ml', category: 'Cold Drinks', price: 35, description: 'Strong cola 250ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1624722213088-23c5321135a4?q=80&w=600&auto=format&fit=crop' },
+
+      // Cold Drinks 500ml variants
       { name: 'Coca-Cola 500ml', category: 'Cold Drinks', price: 50, description: 'Chilled Coke 500ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop' },
       { name: 'Sprite 500ml', category: 'Cold Drinks', price: 50, description: 'Lemon-lime soda 500ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=600&auto=format&fit=crop' },
       { name: 'Fanta 500ml', category: 'Cold Drinks', price: 50, description: 'Orange soda 500ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1600289031468-904c0b8ee1f0?q=80&w=600&auto=format&fit=crop' },
       { name: 'Thums Up 500ml', category: 'Cold Drinks', price: 50, description: 'Strong cola 500ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1624722213088-23c5321135a4?q=80&w=600&auto=format&fit=crop' },
 
-      // Chips
+      // Cold Drinks 1.25L variants
+      { name: 'Coca-Cola 1.25L', category: 'Cold Drinks', price: 80, description: 'Chilled Coke 1.25 litre', is_available: true, image_url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Sprite 1.25L', category: 'Cold Drinks', price: 80, description: 'Lemon-lime soda 1.25 litre', is_available: true, image_url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Fanta 1.25L', category: 'Cold Drinks', price: 80, description: 'Orange soda 1.25 litre', is_available: true, image_url: 'https://images.unsplash.com/photo-1600289031468-904c0b8ee1f0?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Thums Up 1.25L', category: 'Cold Drinks', price: 80, description: 'Strong cola 1.25 litre', is_available: true, image_url: 'https://images.unsplash.com/photo-1624722213088-23c5321135a4?q=80&w=600&auto=format&fit=crop' },
+
+      // Chips (₹20)
       { name: 'Lays Classic Salted', category: 'Chips', price: 20, description: 'Classic salted potato chips', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
       { name: 'Lays Magic Masala', category: 'Chips', price: 20, description: 'Spicy masala chips', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
       { name: 'Kurkure Masala Munch', category: 'Chips', price: 20, description: 'Masaledar crunchy snack', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
