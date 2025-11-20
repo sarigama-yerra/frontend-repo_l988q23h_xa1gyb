@@ -133,8 +133,27 @@ export default function App() {
 
   async function seedMenu() {
     const items = [
+      // Beverages
+      { name: 'Tea', category: 'Beverages', price: 10, description: 'Hot tea', is_available: true, image_url: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Coffee', category: 'Beverages', price: 10, description: 'Hot coffee', is_available: true, image_url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Banana Shake (1L)', category: 'Beverages', price: 90, description: 'Creamy banana shake, 1 litre', is_available: true, image_url: 'https://images.unsplash.com/photo-1586201375754-1421e0aa2bcc?q=80&w=600&auto=format&fit=crop' },
       { name: 'Masala Chai', category: 'Beverages', price: 15, description: 'Freshly brewed spiced tea', is_available: true, image_url: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=600&auto=format&fit=crop' },
       { name: 'Cold Coffee', category: 'Beverages', price: 60, description: 'Chilled coffee with ice', is_available: true, image_url: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=600&auto=format&fit=crop' },
+
+      // Cold Drinks
+      { name: 'Coca-Cola 250ml', category: 'Cold Drinks', price: 35, description: 'Chilled Coke 250ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Coca-Cola 500ml', category: 'Cold Drinks', price: 50, description: 'Chilled Coke 500ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Sprite 500ml', category: 'Cold Drinks', price: 50, description: 'Lemon-lime soda 500ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Fanta 500ml', category: 'Cold Drinks', price: 50, description: 'Orange soda 500ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1600289031468-904c0b8ee1f0?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Thums Up 500ml', category: 'Cold Drinks', price: 50, description: 'Strong cola 500ml', is_available: true, image_url: 'https://images.unsplash.com/photo-1624722213088-23c5321135a4?q=80&w=600&auto=format&fit=crop' },
+
+      // Chips
+      { name: 'Lays Classic Salted', category: 'Chips', price: 20, description: 'Classic salted potato chips', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Lays Magic Masala', category: 'Chips', price: 20, description: 'Spicy masala chips', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Kurkure Masala Munch', category: 'Chips', price: 20, description: 'Masaledar crunchy snack', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Bingo Mad Angles', category: 'Chips', price: 20, description: 'Tangy triangle chips', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
+
+      // Fast Food (keep a few)
       { name: 'Veg Maggie', category: 'Fast Food', price: 45, description: 'Masala maggie with veggies', is_available: true, image_url: 'https://images.unsplash.com/photo-1604908812464-07f2b02ab0ad?q=80&w=600&auto=format&fit=crop' },
       { name: 'Paneer Sandwich', category: 'Fast Food', price: 70, description: 'Grilled sandwich with paneer', is_available: true, image_url: 'https://images.unsplash.com/photo-1604908554007-43c8fb1a8c54?q=80&w=600&auto=format&fit=crop' },
       { name: 'French Fries', category: 'Fast Food', price: 65, description: 'Crispy golden fries', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
