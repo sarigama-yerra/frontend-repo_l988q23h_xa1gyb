@@ -79,6 +79,11 @@ export default function App() {
   const [placing, setPlacing] = useState(false)
   const [toast, setToast] = useState(null)
 
+  // Coupon state
+  const COUPON_CODE = 'RTU20'
+  const [couponInput, setCouponInput] = useState('')
+  const [couponApplied, setCouponApplied] = useState(false)
+
   const categories = useMemo(() => {
     const cats = Array.from(new Set(menu.map(m => m.category)))
     return ['All', ...cats]
@@ -89,12 +94,22 @@ export default function App() {
   }, [menu, category])
 
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0)
+  const isEligibleForDiscount = subtotal >= 300
+  const discount = couponApplied && isEligibleForDiscount ? subtotal * 0.2 : 0
   const deliveryFee = subtotal > 0 ? 10 : 0
-  const total = subtotal + deliveryFee
+  const total = Math.max(0, subtotal - discount + deliveryFee)
 
   useEffect(() => {
     fetchMenu()
   }, [])
+
+  // If cart changes and subtotal drops below threshold, remove discount automatically
+  useEffect(() => {
+    if (couponApplied && !isEligibleForDiscount) {
+      setCouponApplied(false)
+      setToast({ type: 'error', msg: `Coupon removed (min ₹300 not met)` })
+    }
+  }, [isEligibleForDiscount, couponApplied])
 
   async function fetchMenu() {
     setLoading(true)
@@ -146,6 +161,23 @@ export default function App() {
   function dec(id) { setCart(prev => prev.flatMap(i => i.id === id ? (i.qty > 1 ? [{ ...i, qty: i.qty - 1 }] : []) : [i])) }
   function removeItem(id) { setCart(prev => prev.filter(i => i.id !== id)) }
 
+  function applyCoupon(e) {
+    e?.preventDefault?.()
+    const code = couponInput.trim().toUpperCase()
+    if (code !== COUPON_CODE) {
+      setCouponApplied(false)
+      setToast({ type: 'error', msg: 'Invalid coupon code' })
+      return
+    }
+    if (!isEligibleForDiscount) {
+      setCouponApplied(false)
+      setToast({ type: 'error', msg: 'Min order ₹300 required for this coupon' })
+      return
+    }
+    setCouponApplied(true)
+    setToast({ type: 'success', msg: 'Coupon applied! 20% off' })
+  }
+
   async function placeOrder(e) {
     e.preventDefault()
     if (cart.length === 0) return
@@ -170,6 +202,8 @@ export default function App() {
       const data = await res.json()
       setToast({ type: 'success', msg: `Order placed! ID: ${data.id}` })
       setCart([])
+      setCouponApplied(false)
+      setCouponInput('')
       e.currentTarget.reset()
     } catch (err) {
       setToast({ type: 'error', msg: 'Could not place order. Try again.' })
@@ -186,20 +220,35 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-50">
-      <header className="sticky top-0 z-40 backdrop-blur bg-white/70 border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/flame-icon.svg" alt="logo" className="w-8 h-8" />
-            <div>
-              <h1 className="text-xl font-bold text-slate-800">RTU Kota Canteen</h1>
-              <p className="text-xs text-slate-500 -mt-0.5">24x7 delivery to RTU hostels</p>
-            </div>
-          </div>
-          <div className="text-sm text-slate-600">
-            Open • 24 Hours
+      {/* Promo Bar */}
+      <div className="sticky top-0 z-50">
+        <div className="w-full bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-500 text-white text-sm">
+          <div className="max-w-6xl mx-auto px-4 py-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+            <span className="font-semibold tracking-wide">Special Offer</span>
+            <span className="hidden sm:inline">•</span>
+            <span>Use code</span>
+            <span className="px-2 py-0.5 rounded bg-white/20 font-mono text-xs">RTU20</span>
+            <span>to get</span>
+            <span className="font-semibold">20% OFF</span>
+            <span>on orders above ₹300</span>
           </div>
         </div>
-      </header>
+
+        <header className="backdrop-blur bg-white/70 border-b border-slate-200">
+          <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/flame-icon.svg" alt="logo" className="w-8 h-8" />
+              <div>
+                <h1 className="text-xl font-bold text-slate-800">RTU Kota Canteen</h1>
+                <p className="text-xs text-slate-500 -mt-0.5">24x7 delivery to RTU hostels</p>
+              </div>
+            </div>
+            <div className="text-sm text-slate-600">
+              Open • 24 Hours
+            </div>
+          </div>
+        </header>
+      </div>
 
       <main className="max-w-6xl mx-auto px-4 py-6 grid lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2">
@@ -221,7 +270,7 @@ export default function App() {
         </section>
 
         <aside className="lg:col-span-1">
-          <div className="bg-white/80 backdrop-blur border border-slate-200 rounded-xl p-4 sticky top-24">
+          <div className="bg-white/80 backdrop-blur border border-slate-200 rounded-xl p-4 sticky top-28">
             <h2 className="text-lg font-semibold text-slate-800 mb-2">Your Cart</h2>
             {cart.length === 0 ? (
               <p className="text-sm text-slate-500">No items yet. Add something tasty!</p>
@@ -232,8 +281,34 @@ export default function App() {
                 )}
               </div>
             )}
+
+            {/* Coupon input */}
+            <form onSubmit={applyCoupon} className="mt-3 flex gap-2">
+              <input
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value)}
+                placeholder="Enter coupon"
+                className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="submit"
+                className="px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700"
+              >
+                Apply
+              </button>
+            </form>
+            {couponApplied && (
+              <p className="mt-1 text-xs text-green-600">Coupon applied: 20% off on subtotal</p>
+            )}
+            {!isEligibleForDiscount && couponInput.trim().toUpperCase() === COUPON_CODE && (
+              <p className="mt-1 text-xs text-amber-600">Add items worth ₹{(300 - subtotal).toFixed(0)} more to use this coupon</p>
+            )}
+
             <div className="mt-4 space-y-1 text-sm">
               <div className="flex justify-between"><span className="text-slate-600">Subtotal</span><span className="font-medium">₹{subtotal.toFixed(2)}</span></div>
+              {discount > 0 && (
+                <div className="flex justify-between text-green-700"><span>Coupon (RTU20)</span><span>-₹{discount.toFixed(2)}</span></div>
+              )}
               <div className="flex justify-between"><span className="text-slate-600">Delivery</span><span className="font-medium">₹{deliveryFee.toFixed(2)}</span></div>
               <div className="flex justify-between text-slate-800 font-semibold pt-1 border-t"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
             </div>
