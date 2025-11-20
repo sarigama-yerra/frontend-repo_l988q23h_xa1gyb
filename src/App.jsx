@@ -1,73 +1,271 @@
-function App() {
+import { useEffect, useMemo, useState } from 'react'
+
+function Chip({ label, active, onClick }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_50%)]"></div>
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+        active
+          ? 'bg-blue-600 text-white border-blue-600 shadow'
+          : 'bg-white/70 backdrop-blur border-slate-300 text-slate-700 hover:bg-white'
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
 
-      <div className="relative min-h-screen flex items-center justify-center p-8">
-        <div className="max-w-2xl w-full">
-          {/* Header with Flames icon */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center mb-6">
-              <img
-                src="/flame-icon.svg"
-                alt="Flames"
-                className="w-24 h-24 drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]"
-              />
-            </div>
-
-            <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">
-              Flames Blue
-            </h1>
-
-            <p className="text-xl text-blue-200 mb-6">
-              Build applications through conversation
-            </p>
+function MenuCard({ item, onAdd }) {
+  return (
+    <div className="group bg-white/80 backdrop-blur rounded-xl border border-slate-200 p-4 flex gap-4 hover:shadow-lg transition-shadow">
+      <img
+        src={item.image_url || `https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=600&auto=format&fit=crop`}
+        alt={item.name}
+        className="w-20 h-20 rounded-lg object-cover"
+      />
+      <div className="flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h3 className="font-semibold text-slate-800 leading-tight">{item.name}</h3>
+            <p className="text-xs text-slate-500 mt-0.5">{item.category}</p>
           </div>
-
-          {/* Instructions */}
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 shadow-xl mb-6">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                1
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Describe your idea</h3>
-                <p className="text-blue-200/80 text-sm">Use the chat panel on the left to tell the AI what you want to build</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                2
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Watch it build</h3>
-                <p className="text-blue-200/80 text-sm">Your app will appear in this preview as the AI generates the code</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                3
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Refine and iterate</h3>
-                <p className="text-blue-200/80 text-sm">Continue the conversation to add features and make changes</p>
-              </div>
-            </div>
+          <div className="text-right">
+            <div className="text-blue-600 font-bold">₹{item.price.toFixed(2)}</div>
           </div>
-
-          {/* Footer */}
-          <div className="text-center">
-            <p className="text-sm text-blue-300/60">
-              No coding required • Just describe what you want
-            </p>
-          </div>
+        </div>
+        {item.description && (
+          <p className="text-sm text-slate-600 mt-2 line-clamp-2">{item.description}</p>
+        )}
+        <div className="mt-3 flex items-center justify-between">
+          <span className={`text-xs font-medium ${item.is_available ? 'text-green-600' : 'text-red-500'}`}>
+            {item.is_available ? 'Available 24x7' : 'Currently Unavailable'}
+          </span>
+          <button
+            disabled={!item.is_available}
+            onClick={() => onAdd(item)}
+            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Add
+          </button>
         </div>
       </div>
     </div>
   )
 }
 
-export default App
+function CartItem({ item, onInc, onDec, onRemove }) {
+  return (
+    <div className="flex items-center justify-between py-2">
+      <div>
+        <p className="font-medium text-slate-800">{item.name}</p>
+        <p className="text-xs text-slate-500">₹{item.price.toFixed(2)} × {item.qty}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        <button onClick={() => onDec(item.id)} className="w-7 h-7 rounded bg-slate-100 hover:bg-slate-200">-</button>
+        <span className="w-6 text-center text-sm">{item.qty}</span>
+        <button onClick={() => onInc(item.id)} className="w-7 h-7 rounded bg-slate-100 hover:bg-slate-200">+</button>
+        <button onClick={() => onRemove(item.id)} className="ml-2 text-red-600 text-sm">Remove</button>
+      </div>
+    </div>
+  )
+}
+
+export default function App() {
+  const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
+  const [loading, setLoading] = useState(true)
+  const [menu, setMenu] = useState([])
+  const [category, setCategory] = useState('All')
+  const [cart, setCart] = useState([])
+  const [placing, setPlacing] = useState(false)
+  const [toast, setToast] = useState(null)
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(menu.map(m => m.category)))
+    return ['All', ...cats]
+  }, [menu])
+
+  const filteredMenu = useMemo(() => {
+    return category === 'All' ? menu : menu.filter(m => m.category === category)
+  }, [menu, category])
+
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0)
+  const deliveryFee = subtotal > 0 ? 10 : 0
+  const total = subtotal + deliveryFee
+
+  useEffect(() => {
+    fetchMenu()
+  }, [])
+
+  async function fetchMenu() {
+    setLoading(true)
+    try {
+      const res = await fetch(`${baseUrl}/api/menu`)
+      const data = await res.json()
+      setMenu(data)
+      if (data.length === 0) {
+        // seed minimal menu for first-time experience
+        await seedMenu()
+        const seeded = await (await fetch(`${baseUrl}/api/menu`)).json()
+        setMenu(seeded)
+      }
+    } catch (e) {
+      console.error(e)
+      setToast({ type: 'error', msg: 'Unable to load menu. Please try again.' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function seedMenu() {
+    const items = [
+      { name: 'Masala Chai', category: 'Beverages', price: 15, description: 'Freshly brewed spiced tea', is_available: true, image_url: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Cold Coffee', category: 'Beverages', price: 60, description: 'Chilled coffee with ice', is_available: true, image_url: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Veg Maggie', category: 'Fast Food', price: 45, description: 'Masala maggie with veggies', is_available: true, image_url: 'https://images.unsplash.com/photo-1604908812464-07f2b02ab0ad?q=80&w=600&auto=format&fit=crop' },
+      { name: 'Paneer Sandwich', category: 'Fast Food', price: 70, description: 'Grilled sandwich with paneer', is_available: true, image_url: 'https://images.unsplash.com/photo-1604908554007-43c8fb1a8c54?q=80&w=600&auto=format&fit=crop' },
+      { name: 'French Fries', category: 'Fast Food', price: 65, description: 'Crispy golden fries', is_available: true, image_url: 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?q=80&w=600&auto=format&fit=crop' },
+    ]
+    for (const it of items) {
+      await fetch(`${baseUrl}/api/menu`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(it)
+      })
+    }
+  }
+
+  function addToCart(item) {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === item.id)
+      if (existing) return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i)
+      return [...prev, { id: item.id, name: item.name, price: item.price, qty: 1 }]
+    })
+    setToast({ type: 'success', msg: `${item.name} added to cart` })
+  }
+
+  function inc(id) { setCart(prev => prev.map(i => i.id === id ? { ...i, qty: i.qty + 1 } : i)) }
+  function dec(id) { setCart(prev => prev.flatMap(i => i.id === id ? (i.qty > 1 ? [{ ...i, qty: i.qty - 1 }] : []) : [i])) }
+  function removeItem(id) { setCart(prev => prev.filter(i => i.id !== id)) }
+
+  async function placeOrder(e) {
+    e.preventDefault()
+    if (cart.length === 0) return
+    const form = new FormData(e.currentTarget)
+    const payload = {
+      customer_name: form.get('name'),
+      phone: form.get('phone'),
+      hostel: form.get('hostel'),
+      room: form.get('room'),
+      delivery_instructions: form.get('notes') || '',
+      items: cart.map(c => ({ item_id: c.id, name: c.name, qty: c.qty, price: c.price })),
+      total_amount: Number(total.toFixed(2)),
+    }
+    try {
+      setPlacing(true)
+      const res = await fetch(`${baseUrl}/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) throw new Error('Order failed')
+      const data = await res.json()
+      setToast({ type: 'success', msg: `Order placed! ID: ${data.id}` })
+      setCart([])
+      e.currentTarget.reset()
+    } catch (err) {
+      setToast({ type: 'error', msg: 'Could not place order. Try again.' })
+    } finally {
+      setPlacing(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 2500)
+    return () => clearTimeout(t)
+  }, [toast])
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-50">
+      <header className="sticky top-0 z-40 backdrop-blur bg-white/70 border-b border-slate-200">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/flame-icon.svg" alt="logo" className="w-8 h-8" />
+            <div>
+              <h1 className="text-xl font-bold text-slate-800">RTU Kota Canteen</h1>
+              <p className="text-xs text-slate-500 -mt-0.5">24x7 delivery to RTU hostels</p>
+            </div>
+          </div>
+          <div className="text-sm text-slate-600">
+            Open • 24 Hours
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-6 grid lg:grid-cols-3 gap-6">
+        <section className="lg:col-span-2">
+          <div className="flex flex-wrap gap-2 mb-4">
+            {categories.map(cat => (
+              <Chip key={cat} label={cat} active={cat === category} onClick={() => setCategory(cat)} />
+            ))}
+          </div>
+
+          {loading ? (
+            <div className="py-16 text-center text-slate-500">Loading menu...</div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-4">
+              {filteredMenu.map(item => (
+                <MenuCard key={item.id} item={item} onAdd={addToCart} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <aside className="lg:col-span-1">
+          <div className="bg-white/80 backdrop-blur border border-slate-200 rounded-xl p-4 sticky top-24">
+            <h2 className="text-lg font-semibold text-slate-800 mb-2">Your Cart</h2>
+            {cart.length === 0 ? (
+              <p className="text-sm text-slate-500">No items yet. Add something tasty!</p>
+            ) : (
+              <div className="divide-y">
+                {cart.map(c => (
+                  <CartItem key={c.id} item={c} onInc={inc} onDec={dec} onRemove={removeItem} />)
+                )}
+              </div>
+            )}
+            <div className="mt-4 space-y-1 text-sm">
+              <div className="flex justify-between"><span className="text-slate-600">Subtotal</span><span className="font-medium">₹{subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="text-slate-600">Delivery</span><span className="font-medium">₹{deliveryFee.toFixed(2)}</span></div>
+              <div className="flex justify-between text-slate-800 font-semibold pt-1 border-t"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
+            </div>
+
+            <form onSubmit={placeOrder} className="mt-4 space-y-3">
+              <input name="name" required placeholder="Your Name" className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input name="phone" required placeholder="Phone" pattern="[0-9]{10}" title="10 digit phone" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input name="hostel" required placeholder="Hostel Name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input name="room" required placeholder="Room Number" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <textarea name="notes" placeholder="Delivery instructions (optional)" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+
+              <button
+                type="submit"
+                disabled={cart.length === 0 || placing}
+                className="w-full py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+              >
+                {placing ? 'Placing order...' : 'Place Order'}
+              </button>
+            </form>
+          </div>
+        </aside>
+      </main>
+
+      <footer className="py-8 text-center text-xs text-slate-500">
+        Made for RTU students • Beverages and fast food delivered to your hostel
+      </footer>
+
+      {toast && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow ${toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-slate-900 text-white'}`}>
+          {toast.msg}
+        </div>
+      )}
+    </div>
+  )
+}
